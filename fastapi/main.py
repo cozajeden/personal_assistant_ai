@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from database import lifespan
+from routers import routers
 
 app = FastAPI(
     title="Ollama FastAPI Service",
@@ -7,17 +8,16 @@ app = FastAPI(
     version="1.0.0",
     prefix="/api/v1",
     docs_url="/",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
-# app.include_router(ollama_models_router, prefix="/ollama/models", tags=["ollama-models"])
-# app.include_router(database_models_router, prefix="/models", tags=["database-models"])
-# app.include_router(chat.router, prefix="/chat", tags=["chat"])
-# app.include_router(stt.router, prefix="/stt", tags=["speech-to-text"])
+for router in routers:
+    app.include_router(router[1], prefix=router[0], tags=[router[0]])
 
 @app.get("/")
 async def root():
     return {"message": "Ollama FastAPI Service is running"}
+
 
 @app.get("/health")
 async def health_check():
@@ -26,4 +26,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
