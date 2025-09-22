@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   fastapi:
-    build: ./fastapi
+    build: ./api
     container_name: fastapi
     depends_on:
       postgres:
@@ -54,7 +54,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./fastapi:/app
+      - ./api:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s

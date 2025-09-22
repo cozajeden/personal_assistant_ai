@@ -12,7 +12,7 @@ app = FastAPI(
 )
 
 for router in routers:
-    app.include_router(router[1], prefix=router[0], tags=[router[0]])
+    app.include_router(router)
 
 @app.get("/")
 async def root():

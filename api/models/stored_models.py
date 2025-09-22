@@ -9,6 +9,7 @@ from sqlmodel import (
     BigInteger,
     Boolean,
     Float,
+    JSON,
 )
 from typing import Optional
 
@@ -25,3 +26,7 @@ class StoredModels(SQLModel, table=True):
     thinking: bool = Field(default=False, sa_column=Column(Boolean))
     vision: bool = Field(default=False, sa_column=Column(Boolean))
     size: int = Field(default=0, sa_column=Column(BigInteger))
+    completion: bool = Field(default=False, sa_column=Column(Boolean))
+    insert: bool = Field(default=False, sa_column=Column(Boolean))
+    embedding: bool = Field(default=False, sa_column=Column(Boolean))
+    capabilities: dict = Field(default={}, sa_column=Column(JSON))
