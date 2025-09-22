@@ -2,7 +2,7 @@ from database import SessionDependency
 from models.stored_models import StoredModels
 import httpx
 import settings
-from sqlmodel import select
+from sqlmodel import select, update
 
 
 async def update_list(session: SessionDependency):
@@ -10,6 +10,7 @@ async def update_list(session: SessionDependency):
     ### Update the models in the database.
     - Models list will be fetched from Ollama.
     - Models will be added to the database if they are not already in the database.
+    > Older models will remain in the database.
     """
     async with httpx.AsyncClient() as client:
         ollama_models = await client.get(f"{settings.OLLAMA_BASE_URL}/api/tags")
@@ -23,6 +24,12 @@ async def update_list(session: SessionDependency):
                 StoredModels(
                     model_name=model["model"],
                     size=model["size"],
+                )
+            )
+        else:
+            session.exec(
+                update(StoredModels).where(StoredModels.model_name == model["model"]).values(
+                    size=model["size"]
                 )
             )
 
