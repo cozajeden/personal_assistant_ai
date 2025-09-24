@@ -5,4 +5,4 @@ from .show_models import router as show_models_router
 router = APIRouter(prefix="/models", tags=["models"])
 
 router.include_router(update_models_router, tags=["update"])
-router.include_router(show_models_router, tags=["show"])
+router.include_router(show_models_router, tags=["get"])

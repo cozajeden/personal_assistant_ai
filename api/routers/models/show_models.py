@@ -7,7 +7,7 @@ from sqlmodel import select, update
 from pydantic import BaseModel
 import traceback
 
-router = APIRouter(prefix="/show")
+router = APIRouter(prefix="/get")
 
 @router.get("/ollama_list")
 async def ollama_list():
