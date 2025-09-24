@@ -57,21 +57,22 @@ async def upgrade_list(session: SessionDependency):
                     json={"model": model.model_name},
                 )
                 json_response = ollama_model.json()
-                context_window = [
-                    key
-                    for key in json_response["model_info"]
-                    if key.find("context_length") != -1
-                ]
-                if len(context_window) > 0:
-                    model.context_window = json_response["model_info"][context_window[0]]
-                model.tools = "tools" in json_response["capabilities"]
-                model.thinking = "thinking" in json_response["capabilities"]
-                model.vision = "vision" in json_response["capabilities"]
-                model.completion = "completion" in json_response["capabilities"]
-                model.insert = "insert" in json_response["capabilities"]
-                model.embedding = "embedding" in json_response["capabilities"]
-                model.capabilities = json_response["capabilities"]
-                session.add(model)
+                if "model_info" in json_response:
+                    context_window = [
+                        key
+                        for key in json_response["model_info"]
+                        if key.find("context_length") != -1
+                    ]
+                    if len(context_window) > 0:
+                        model.context_window = json_response["model_info"][context_window[0]]
+                    model.tools = "tools" in json_response["capabilities"]
+                    model.thinking = "thinking" in json_response["capabilities"]
+                    model.vision = "vision" in json_response["capabilities"]
+                    model.completion = "completion" in json_response["capabilities"]
+                    model.insert = "insert" in json_response["capabilities"]
+                    model.embedding = "embedding" in json_response["capabilities"]
+                    model.capabilities = json_response["capabilities"]
+                    session.add(model)
         await session.commit()
         return {"message": "Models upgraded"}
     except Exception as e:
