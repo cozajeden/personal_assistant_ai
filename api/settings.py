@@ -5,3 +5,4 @@ dotenv.load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL")
+ALLOWED_ORIGINS = os.getenv("FASTAPI_ALLOWED_ORIGINS")

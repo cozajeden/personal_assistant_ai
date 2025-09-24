@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from database import lifespan
 from routers import routers
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:5173",
+    "http://localhost:8000",
+    "http://react:5173",
+]
 
 app = FastAPI(
     title="Ollama FastAPI Service",
@@ -9,6 +16,14 @@ app = FastAPI(
     prefix="/api/v1",
     docs_url="/",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 for router in routers:
