@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from "react";
+import { ChatHistoryMemory, ChatMessage } from "../../../types/chat";
 
 export default function ChatHistory({ setOnMessage }) {
-  const [chatHistory, setChatHistory] = useState([]);
+  const [version, setVersion] = useState(false);
+  const chatHistoryMemoryRef = useRef(new ChatHistoryMemory());
   const chatHistoryRef = useRef(null);
 
   const formatMessage = (message) => {
@@ -36,7 +38,11 @@ export default function ChatHistory({ setOnMessage }) {
       try {
         const parsed = JSON.parse(raw);
         parsed.forEach((msg) => {
-          setChatHistory((prev) => [...prev, formatMessage(msg)]);
+          const message = new ChatMessage(msg);
+          console.log('msg',message);
+          chatHistoryMemoryRef.current.addMessage(message);
+          setVersion((prev) => !prev);
+          console.log('chatHistoryMemory',chatHistoryMemoryRef.current.memory);
         });
       } catch (e) {
         console.error("Invalid JSON from WS:", raw);
@@ -50,16 +56,18 @@ export default function ChatHistory({ setOnMessage }) {
         behavior: "smooth",
         block: "end",
       });
+      chatHistoryRef.current.scrollBy(0, chatHistoryRef.current.clientHeight);
     }
-  }, [chatHistory]);
+  }, [version]);
+
 
   return (
     <div
       ref={chatHistoryRef}
       className="flex flex-col h-full overflow-y-auto border border-gray-500 rounded-md p-4 whitespace-pre-wrap"
     >
-      {chatHistory.map((msg, i) => (
-        <div key={i}>{msg}</div>
+      {Object.values(chatHistoryMemoryRef.current.memory).map((msg, i) => (
+        <div key={i}>{formatMessage(msg)}</div>
       ))}
     </div>
   );

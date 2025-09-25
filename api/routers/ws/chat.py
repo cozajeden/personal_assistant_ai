@@ -1,6 +1,7 @@
 from fastapi import WebSocket, APIRouter, WebSocketDisconnect
 from email import message
 from typing import TypedDict, List, Union, Annotated, Sequence, Callable
+from httpx import stream
 from langgraph.graph import StateGraph, START, END
 from langchain_ollama import ChatOllama
 from langchain_core.language_models import BaseChatModel
@@ -61,12 +62,14 @@ async def model_call(state: AgentState):
                 response_type = "THINK"
                 response["content"] = ""
             elif response["content"] == "</think>":
+                response["streaming"] = False
                 response_type = "AI"
                 response["content"] = ""
         else:
             raise ValueError(f"Unknown event: {response['event']}")
 
-
+        if response_type == "THINK":
+            response["id"] += '_think'
         response["type"] = response_type
         await state["queue"].put(response)
     data = dict(event["data"]["output"])
@@ -148,7 +151,6 @@ async def chat(websocket: WebSocket):
                 stream_mode="values",
             )
             state_messages = response["messages"]
-            await queue.put(state_messages[-1])
         except WebSocketDisconnect:
             logging.info("WebSocket disconnected")
             break
