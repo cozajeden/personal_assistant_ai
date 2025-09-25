@@ -66,7 +66,7 @@ export default function ChatHistory({ setOnMessage }) {
       ref={chatHistoryRef}
       className="flex flex-col h-full overflow-y-auto border border-gray-500 rounded-md p-4 whitespace-pre-wrap"
     >
-      {Object.values(chatHistoryMemoryRef.current.memory).map((msg, i) => (
+      {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
         <div key={i}>{formatMessage(msg)}</div>
       ))}
     </div>
