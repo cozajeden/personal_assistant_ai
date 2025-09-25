@@ -11,7 +11,7 @@
 - [ ] automate choosing llms
 - [x] allow parallel when it is possible (Done by Ollama settings)
 - [x] Model list view
-- [x] Chat View
+- [x] Chat View (On WebSocket)
 - [ ] Model sorting and filtering
 - [ ] api with metrics
 - [ ] allow conversation brancching
