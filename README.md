@@ -1,14 +1,17 @@
-### DONE:
-- pulled ollama models locally for testing
-- tested chat
-- tested tools
 
 ### TODO
-- setup openAI, Gork, DeepSeek, Gemini, Llama, etc. free tiers
-- categorize models in DB
-- assign metrics and limits in models
-- functionallity for calls and sessions
-- tracking limits
-- automate choosing llms
-- allow parallel when it is possible
-- api with metrics
+[] setup openAI, Gork, DeepSeek, Gemini, Llama, etc. free tiers
+[] categorize models in DB
+[] assign metrics and limits in models
+[] functionallity for sessions (In memory session for now)
+[] functionallity for tool calls 
+[] MCP
+[] RAG
+[] tracking limits for clouds
+[] automate choosing llms
+[x] allow parallel when it is possible (Done by Ollama settings)
+[x] Model list view
+[x] Chat View
+[] Model sorting and filtering
+[] api with metrics
+[] allow conversation brancching
