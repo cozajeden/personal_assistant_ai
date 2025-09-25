@@ -10,7 +10,6 @@ export default function Models() {
     useEffect(() => {
         fetchModels()
             .then((data) => {
-                console.log("API response:", data);
                 setModels(data);
                 setLoading(false);
             })
