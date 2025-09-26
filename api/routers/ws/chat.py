@@ -102,7 +102,7 @@ graph.add_conditional_edges(
 graph.add_edge("tools", "our_agent")
 
 agent = graph.compile()
-model_name = "qwen3:1.7b"
+model_name = "gemma3:270m"
 
 
 async def get_llm(model_name: str) -> BaseChatModel:
@@ -132,7 +132,11 @@ async def chat(websocket: WebSocket):
     task = asyncio.create_task(send_message_from_queue(websocket, queue))
     state_messages = [
         SystemMessage(
-            content="You are a helpful assistant that will help the user with his request or just talk about random stuff if he asks about it."
+            content="""You are perfect planner for given tasks,
+            you always break down the task into smaller tasks and plan the best way to solve the task.
+            You answer in short and concise manner,
+            You will response with only the list of steps needed to solve the task, no other text.
+            The list is in html format, with <ol> and <li> tags."""
         ),
     ]
     await websocket.send_json([dict(message) for message in state_messages])
