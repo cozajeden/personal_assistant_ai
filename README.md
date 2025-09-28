@@ -10,8 +10,12 @@
 - [ ] tracking limits for clouds
 - [ ] automate choosing llms
 - [x] allow parallel when it is possible (Done by Ollama settings)
-- [x] Model list view
+- [] Model list
+    - [x] Show it
+    - [ ] Return filters from API
+    - [ ] Model sorting and filtering on backend
+    - [ ] Model sorting and filtering on frontend
+    
 - [x] Chat View (On WebSocket)
-- [ ] Model sorting and filtering
 - [ ] api with metrics
-- [ ] allow conversation brancching
+- [ ] allow conversation branching

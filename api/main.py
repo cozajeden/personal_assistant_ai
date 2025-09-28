@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from database import lifespan
 from routers import routers
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,7 +14,6 @@ app = FastAPI(
     version="1.0.0",
     prefix="/api/v1",
     docs_url="/",
-    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -28,6 +26,7 @@ app.add_middleware(
 
 for router in routers:
     app.include_router(router)
+
 
 @app.get("/")
 async def root():

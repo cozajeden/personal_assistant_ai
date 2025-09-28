@@ -27,9 +27,13 @@ export class ChatHistoryMemory {
         this.current_id = 0;
     }
     addMessage(message: ChatMessage) {
+        console.log('message', message);
         if (this.current_id !== 0 && this.current_id === message.id) {
-            console.log('message.id', message.id);
-            this.memory[message.id].content += message.content;
+            if (message.type === 'generating') {
+                this.memory[message.id].content += message.content;
+            } else {
+                this.memory[message.id] = message;
+            }
         } else {
             const previous_id = this.current_id;
             message.previous_id = this.current_id;

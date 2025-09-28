@@ -10,11 +10,13 @@ python-multipart
 fastapi
 uvicorn[standard]
 sqlmodel
+sqlalchemy-stubs
 httpx
 pytest
 pytest-asyncio
 pytest-cov
 pytest-mock
+mypy
 psycopg2-binary
 asyncpg
 alembic
@@ -22,3 +24,5 @@ pydub
 numpy
 openai-whisper
 websockets
+duckduckgo-search
+langchain-community

@@ -8,6 +8,7 @@ import traceback
 
 router = APIRouter(prefix="/update")
 
+
 @router.post("/update_list")
 async def update_list(session: SessionDependency):
     """
@@ -31,7 +32,7 @@ async def update_list(session: SessionDependency):
                 )
             )
         else:
-            session.exec(
+            await session.exec(
                 update(StoredModels)
                 .where(StoredModels.model_name == model["model"])
                 .values(size=model["size"])
@@ -39,6 +40,7 @@ async def update_list(session: SessionDependency):
 
     await session.commit()
     return {"message": "Models updated", "ollama_models": ollama_models.json()}
+
 
 @router.post("/upgrade_list")
 async def upgrade_list(session: SessionDependency):
@@ -64,7 +66,9 @@ async def upgrade_list(session: SessionDependency):
                         if key.find("context_length") != -1
                     ]
                     if len(context_window) > 0:
-                        model.context_window = json_response["model_info"][context_window[0]]
+                        model.context_window = json_response["model_info"][
+                            context_window[0]
+                        ]
                     model.tools = "tools" in json_response["capabilities"]
                     model.thinking = "thinking" in json_response["capabilities"]
                     model.vision = "vision" in json_response["capabilities"]
@@ -77,7 +81,10 @@ async def upgrade_list(session: SessionDependency):
         return {"message": "Models upgraded"}
     except Exception as e:
         traceback.print_exc()
-        return {"message": "Error upgrading models", "error": str(e),}
+        return {
+            "message": "Error upgrading models",
+            "error": str(e),
+        }
 
 
 @router.post("/delete_model_from_database")
@@ -85,6 +92,8 @@ async def delete_model_from_database(model_name: str, session: SessionDependency
     """
     ### Delete the model from the database.
     """
-    session.exec(delete(StoredModels).where(StoredModels.model_name == model_name))
+    await session.exec(
+        delete(StoredModels).where(StoredModels.model_name == model_name)
+    )
     await session.commit()
     return {"message": "Model deleted from database"}
