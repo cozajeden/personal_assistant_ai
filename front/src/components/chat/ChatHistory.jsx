@@ -58,15 +58,14 @@ export default function ChatHistory({ setOnMessage }) {
     }
   }, [version]);
 
-
   return (
     <div
       ref={chatHistoryRef}
       className="flex flex-col h-full overflow-y-auto border border-gray-500 rounded-md p-4 whitespace-pre-wrap"
     >
-    {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
-      <div key={i}>{formatMessage(msg)}</div>
-    ))}
+      {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
+        <div key={i}>{formatMessage(msg)}</div>
+      ))}
     </div>
   );
 }
