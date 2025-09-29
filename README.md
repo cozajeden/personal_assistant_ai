@@ -16,6 +16,7 @@
     - [x] Choosing past conversations
     - [ ] allow conversation branching
     - [ ] allow system messages management
+    - [ ] show tools in proper place in conversation
 - [ ] MAKE FRONT-END BEAUTIFUL
 - [ ] setup cloud models
     - [ ] Claude
@@ -31,7 +32,8 @@
 - [ ] assign metrics and limits to models
 - [ ] functionallity for sessions
     - [x] conversations are stored in db
-    - [ ] can retrieve old conversation
+    - [x] can retrieve old conversation
+    - [ ] storing messages order 
 - [ ] Background tasks
     - [ ] Integrate Celery
     - [ ] Add to chat option to run tasks in background
