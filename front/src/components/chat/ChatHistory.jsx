@@ -41,12 +41,12 @@ export default function ChatHistory({ setOnMessage }) {
           const message = new ChatMessage(msg);
           console.log('msg',message);
           chatHistoryMemoryRef.current.addMessage(message);
-          setVersion((prev) => !prev);
           console.log('chatHistoryMemory',chatHistoryMemoryRef.current.memory);
         });
       } catch (e) {
         console.error("Invalid JSON from WS:", raw);
       }
+      setVersion((prev) => !prev);
     });
   }, [setOnMessage]);
 

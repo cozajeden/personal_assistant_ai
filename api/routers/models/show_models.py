@@ -30,7 +30,11 @@ async def db_list(
     """
     database_models = (await session.exec(filters.get_query_filtered())).all()
 
-    return {"message": "Models from database", "database_models": database_models, "filters": filters}
+    return {
+        "message": "Models from database",
+        "database_models": database_models,
+        "filters": filters,
+    }
 
 
 @router.post("/ollama_show")

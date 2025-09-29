@@ -22,6 +22,7 @@ class Controller:
         temperature: float = 0.7,
     ):
         self.messages: List[BaseMessage] = []
+        self.sent_count = 0
         self.session = session
         self.response_queue = response_queue
         self.temperature = temperature
@@ -58,10 +59,14 @@ class Controller:
         assert self.llm is not None
         async_iterator = self.llm.astream_events(state["messages"])
         response_type = "generating"
+
+        db_message = await self.save_message_to_database(
+            {"content": "Generating response...", "type": "ai"}
+        )
         async for event in async_iterator:
-            logging.debug(f"Event in loop: {event}")
             response = {
                 "event": event["event"],
+                "message_id": db_message.id,
             }
             if response["event"] in ["on_chat_model_start", "on_chat_model_end"]:
                 continue
@@ -73,9 +78,14 @@ class Controller:
 
             response["type"] = response_type
             if response["content"]:
-                await self.response_queue.put([dict(response)])
+                await self.response_queue.put(
+                    [dict(response) | {"message_id": db_message.id}]
+                )
         data = dict(event["data"]["output"])
         data["type"] = "ai"
+        data["message_id"] = db_message.id
+        db_message.message = data
+        await self.update_message_in_database(db_message)
         return {"messages": [data]}
 
     async def initialize(self, model_name: str = "qwen3:4b", temperature: float = 0.7):
@@ -104,6 +114,8 @@ class Controller:
         await self.response_queue.put(
             [system_message.message | {"message_id": system_message.id}]
         )
+        self.add_message(self.system_message)
+        self.sent_count += 1
 
         assert self.model is not None
         await self.set_llm(self.model)
@@ -113,19 +125,34 @@ class Controller:
         human_message = HumanMessage(content=message)
         self.add_message(human_message)
         human_message_id = (await self.save_message_to_database(human_message)).id
-        await self.response_queue.put([dict(human_message) | {"message_id": human_message_id}])
+        await self.response_queue.put(
+            [dict(human_message) | {"message_id": human_message_id}]
+        )
         agent = get_tool_first_agent(self.model_call)
         response = await agent.ainvoke(
             {"messages": [self.system_message] + self.messages}
         )
-        self.add_message(response["messages"][-1])
-        await self.response_queue.put([dict(response["messages"][-1])])
+        for message in response["messages"][self.sent_count + 1 :]:
+            self.add_message(message)
+            await self.response_queue.put(
+                [dict(message) | {"message_id": message.id}]
+            )
+        await self.response_queue.put(
+            [dict(msg) for msg in self.messages[self.sent_count + 1 :]]
+        )
+        self.sent_count = len(self.messages)
         return response
 
-    async def save_message_to_database(self, message: BaseMessage) -> Message:
-        message = Message(
+    async def save_message_to_database(self, message: BaseMessage | dict) -> Message:
+        assert self.conversation is not None
+        db_message = Message(
             conversation_id=self.conversation.id, message=dict(message)
         )
+        self.session.add(db_message)
+        await self.session.commit()
+        return db_message
+
+    async def update_message_in_database(self, message: Message) -> Message:
         self.session.add(message)
         await self.session.commit()
         return message

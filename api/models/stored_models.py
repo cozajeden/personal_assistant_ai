@@ -51,7 +51,9 @@ class StoredModelsFilters(BaseModel):
 
     # Sorting
     model_name_asc: bool | None = PydanticField(None, description="Model name asc")
-    context_window_asc: bool | None = PydanticField(None, description="Context window asc")
+    context_window_asc: bool | None = PydanticField(
+        None, description="Context window asc"
+    )
     tools_asc: bool | None = PydanticField(None, description="Tools asc")
     thinking_asc: bool | None = PydanticField(None, description="Thinking asc")
     vision_asc: bool | None = PydanticField(None, description="Vision asc")

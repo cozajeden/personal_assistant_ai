@@ -5,7 +5,6 @@ from agents.controller import Controller
 from database import SessionDependency
 
 
-
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
