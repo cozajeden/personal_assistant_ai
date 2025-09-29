@@ -1,10 +1,11 @@
-
+from email import message
 from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
 import logging
 import asyncio
 from langchain_core.runnables import Runnable
 from langchain_ollama import ChatOllama
 from models.stored_models import StoredModels
+from models.messages import Conversation, Message
 from .tool_first import get_tool_first_agent, tools
 import settings
 from .variables import AgentState
@@ -18,19 +19,20 @@ class Controller:
         self,
         response_queue: asyncio.Queue,
         session: AsyncSession,
-        stream_mode: str = "values",
         temperature: float = 0.7,
     ):
         self.messages: List[BaseMessage] = []
         self.session = session
         self.response_queue = response_queue
-        self.stream_mode = stream_mode
         self.temperature = temperature
         self.model: Optional[StoredModels] = None
         self.llm: Optional[Runnable] = None
+        self.conversation: Optional[Conversation] = None
+        self.message: Optional[Message] = None
         self.system_message: SystemMessage = SystemMessage(
             content="""You are helpful assistant.
-        When tool didn't find the answer, you should try it again with different query."""
+        When tool didn't find the answer, you should try it again with different query.
+        You will always do 2 queries to the tool, per tool."""
         )
 
     async def set_model(self, model_name: str, session: AsyncSession) -> None:
@@ -57,7 +59,7 @@ class Controller:
         async_iterator = self.llm.astream_events(state["messages"])
         response_type = "generating"
         async for event in async_iterator:
-            logging.info(f"Event in loop: {event}")
+            logging.debug(f"Event in loop: {event}")
             response = {
                 "event": event["event"],
             }
@@ -71,31 +73,69 @@ class Controller:
 
             response["type"] = response_type
             if response["content"]:
-                await self.response_queue.put([response])
+                await self.response_queue.put([dict(response)])
         data = dict(event["data"]["output"])
-        logging.info(f"Data in loop: {dir(response)}")
         data["type"] = "ai"
         return {"messages": [data]}
 
-    async def invoke(self, human_message: HumanMessage, stream_mode: str = "values"):
+    async def initialize(self, model_name: str = "qwen3:4b", temperature: float = 0.7):
+        """
+        Initialize the controller.
+        You should call this method before using the controller.
+        It sets the model and the llm, it also clears the messages,
+        so you can call this function to reset the controller.
+
+        Args:
+            model_name: The name of the model to use.
+            temperature: The temperature of the model.
+        """
         self.clear_messages()
-        await self.add_message(self.system_message)
-        await self.add_message(human_message)
-        await self.set_model("qwen3-coder:30b", self.session)
+        self.temperature = temperature
+        await self.set_model(model_name, self.session)
+
+        self.conversation = Conversation(name=model_name)
+        self.session.add(self.conversation)
+        await self.session.commit()
+        system_message = Message(
+            conversation_id=self.conversation.id, message=dict(self.system_message)
+        )
+        self.session.add(system_message)
+        await self.session.commit()
+        await self.response_queue.put(
+            [system_message.message | {"message_id": system_message.id}]
+        )
+
         assert self.model is not None
         await self.set_llm(self.model)
         assert self.llm is not None
+
+    async def invoke(self, message: str):
+        human_message = HumanMessage(content=message)
+        self.add_message(human_message)
+        human_message_id = (await self.save_message_to_database(human_message)).id
+        await self.response_queue.put([dict(human_message) | {"message_id": human_message_id}])
         agent = get_tool_first_agent(self.model_call)
-        response = await agent.ainvoke({"messages": self.messages})
-        await self.add_message(response["messages"][-1])
+        response = await agent.ainvoke(
+            {"messages": [self.system_message] + self.messages}
+        )
+        self.add_message(response["messages"][-1])
+        await self.response_queue.put([dict(response["messages"][-1])])
         return response
 
-    async def add_message(self, message: BaseMessage):
+    async def save_message_to_database(self, message: BaseMessage) -> Message:
+        message = Message(
+            conversation_id=self.conversation.id, message=dict(message)
+        )
+        self.session.add(message)
+        await self.session.commit()
+        return message
+
+    def add_message(self, message: BaseMessage):
         self.messages.append(message)
         return self.messages
 
-    async def get_messages(self):
+    def get_messages(self):
         return self.messages
 
-    async def clear_messages(self):
+    def clear_messages(self):
         self.messages = []
