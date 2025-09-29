@@ -93,7 +93,37 @@ class Controller:
         await self.update_message_in_database(db_message)
         return {"messages": [data]}
 
-    async def initialize(self, model_name: str = "qwen3:4b", temperature: float = 0.7):
+    async def start_new_conversation(self, model_name: str):
+        self.conversation = Conversation(name=model_name)
+        self.session.add(self.conversation)
+        await self.session.commit()
+        system_message = Message(
+            conversation_id=self.conversation.id, message=dict(self.system_message)
+        )
+        self.session.add(system_message)
+        await self.session.commit()
+        await self.response_queue.put(
+            [system_message.message | {"message_id": system_message.id}]
+        )
+        self.system_message.additional_kwargs["message_id"] = system_message.id
+        self.add_message(self.system_message)
+
+    async def load_conversation(self, conversation_id: int):
+        self.conversation = await self.session.get(Conversation, conversation_id)
+        stored_messages = await self.session.exec(
+            select(Message).where(Message.conversation_id == conversation_id)
+        )
+        for message in stored_messages:
+            self.add_message(message=message.message | {"message_id": message.id})
+        await self.response_queue.put(self.messages)
+        assert self.conversation is not None
+
+    async def initialize(
+        self,
+        model_name: str = "qwen3:4b",
+        temperature: float = 0.7,
+        conversation_id: int = 0,
+    ):
         """
         Initialize the controller.
         You should call this method before using the controller.
@@ -109,21 +139,13 @@ class Controller:
         await self.set_model(model_name, self.session)
 
         # Start conversation and add system message
-        self.conversation = Conversation(name=model_name)
-        self.session.add(self.conversation)
-        await self.session.commit()
-        system_message = Message(
-            conversation_id=self.conversation.id, message=dict(self.system_message)
-        )
-        self.session.add(system_message)
-        await self.session.commit()
-        await self.response_queue.put(
-            [system_message.message | {"message_id": system_message.id}]
-        )
-        self.system_message.additional_kwargs["message_id"] = system_message.id
-        self.add_message(self.system_message)
-        self.sent_count += 1
+        if conversation_id == 0:
+            await self.start_new_conversation(model_name)
+        else:
+            await self.load_conversation(conversation_id)
 
+        assert self.conversation is not None
+        self.sent_count = len(self.messages)
         assert self.model is not None
         await self.set_llm(self.model)
         assert self.llm is not None
@@ -143,7 +165,9 @@ class Controller:
         human_message_id = (await self.save_message_to_database(human_message)).id
         human_message.additional_kwargs["message_id"] = human_message_id
         self.add_message(human_message)
-        await self.response_queue.put([dict(human_message) | {"message_id": human_message_id}])
+        await self.response_queue.put(
+            [dict(human_message) | {"message_id": human_message_id}]
+        )
 
         # Call agent
         agent = get_tool_first_agent(self.model_call)

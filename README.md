@@ -13,10 +13,10 @@
 - [ ] Chat View
     - [x] Minimal working conversation
     - [ ] Choosing model
-    - [ ] Choosing past conversations
+    - [x] Choosing past conversations
     - [ ] allow conversation branching
     - [ ] allow system messages management
-    - [ ] MAKE FRONT-END BEAUTIFUL
+- [ ] MAKE FRONT-END BEAUTIFUL
 - [ ] setup cloud models
     - [ ] Claude
     - [ ] OpenAI

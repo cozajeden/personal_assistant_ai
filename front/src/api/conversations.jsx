@@ -1,7 +1,9 @@
 import { API_BASE } from "../config/api";
 
-export const fetchConversations = async () => {
-  const response = await fetch(`${API_BASE}/conversations/get/list`);
+export const fetchConversations = async (limit = 30) => {
+  const response = await fetch(
+    `${API_BASE}/conversations/get/list?limit=${limit}`
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch conversations");
   }

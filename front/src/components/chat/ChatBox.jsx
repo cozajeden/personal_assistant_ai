@@ -8,11 +8,30 @@ const components = {
   InputBox,
 };
 
-export default function ChatBox() {
-  const { sendMessage, setOnMessage } = useWebSocket(`${API_BASE}/ws/chat/new`);
+export default function ChatBox({ conversationId, setConversationId }) {
+  if (conversationId === null) {
+    return (
+      <div className="flex flex-col min-h-0 min-w-0 w-full border-gray-500 border-2 items-center justify-center">
+        <div>Select a conversation from the list</div>
+        <div>or</div>
+        <button
+          className="bg-blue-500 text-white rounded-md p-2"
+          onClick={() => setConversationId(0)}
+        >
+          create a new conversation
+        </button>
+      </div>
+    );
+  }
+  const { sendMessage, setOnMessage } = useWebSocket(
+    `${API_BASE}/ws/chat/new?conversation_id=${conversationId}`
+  );
   return (
     <div className="flex flex-col min-h-0 min-w-0 w-4/5 border-gray-500 border-2 rounded-md grow">
-      <ChatHistory setOnMessage={setOnMessage} />
+      <ChatHistory
+        setOnMessage={setOnMessage}
+        conversationId={conversationId}
+      />
       <InputBox sendMessage={sendMessage} />
     </div>
   );

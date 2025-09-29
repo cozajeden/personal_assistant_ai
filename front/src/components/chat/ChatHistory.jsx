@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ChatHistoryMemory, ChatMessage } from "../../types/chat";
 
-export default function ChatHistory({ setOnMessage }) {
+export default function ChatHistory({ setOnMessage, conversationId }) {
   const [version, setVersion] = useState(false);
   const chatHistoryMemoryRef = useRef(new ChatHistoryMemory());
   const chatHistoryRef = useRef(null);
@@ -32,6 +32,10 @@ export default function ChatHistory({ setOnMessage }) {
       </div>
     );
   };
+
+  useEffect(() => {
+    chatHistoryMemoryRef.current.clear();
+  }, [conversationId]);
 
   useEffect(() => {
     setOnMessage((raw) => {

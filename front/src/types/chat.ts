@@ -47,6 +47,10 @@ export class ChatHistoryMemory {
   getMessages() {
     return this.memory_list;
   }
+  clear() {
+    this.memory_list = [];
+    this.id_map = {};
+  }
 }
 
 export class ChatConversation {
