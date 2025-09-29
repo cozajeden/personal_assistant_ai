@@ -7,6 +7,7 @@
 - [ ] Tools
     - [x] functionallity for tool calls
     - [x] Show tools response in conversation
+    - [ ] Add tools for groceries
     - [ ] Show tools in conversation in proper order
     - [ ] User should control which tools are attached
 - [ ] Chat View
@@ -15,6 +16,7 @@
     - [ ] Choosing past conversations
     - [ ] allow conversation branching
     - [ ] allow system messages management
+    - [ ] MAKE FRONT-END BEAUTIFUL
 - [ ] setup cloud models
     - [ ] Claude
     - [ ] OpenAI
