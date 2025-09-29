@@ -13,11 +13,11 @@ export function useWebSocket(url) {
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {
-      console.log("WebSocket connected");
+      console.debug("WebSocket connected");
     };
 
     ws.current.onmessage = (event) => {
-      console.log("WebSocket message:", event.data);
+      console.debug("WebSocket message:", event.data);
       if (messageHandler.current) {
         messageHandler.current(event.data);
       } else {
@@ -26,7 +26,7 @@ export function useWebSocket(url) {
     };
 
     ws.current.onclose = () => {
-      console.log("WebSocket disconnected");
+      console.debug("WebSocket disconnected");
     };
 
     ws.current.onerror = (err) => {

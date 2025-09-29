@@ -1,21 +1,38 @@
-
 ### TODO
-- [ ] setup openAI, Gork, DeepSeek, Gemini, Llama, etc. free tiers
+- [ ] Model list
+    - [x] Show it
+    - [x] Return filters from API
+    - [x] Model sorting and filtering on backend
+    - [ ] Model sorting and filtering on frontend
+- [ ] Tools
+    - [x] functionallity for tool calls
+    - [x] Show tools response in conversation
+    - [ ] Show tools in conversation in proper order
+    - [ ] User should control which tools are attached
+- [ ] Chat View
+    - [x] Minimal working conversation
+    - [ ] Choosing model
+    - [ ] Choosing past conversations
+    - [ ] allow conversation branching
+    - [ ] allow system messages management
+- [ ] setup cloud models
+    - [ ] Claude
+    - [ ] OpenAI
+    - [ ] Gork
+    - [ ] DeepSeek
+    - [ ] Gemini
+    - [ ] Llama
+    - [ ] Ollama (Need to handle login in Ollama container)
 - [ ] categorize models in DB
-- [ ] assign metrics and limits in models
-- [ ] functionallity for sessions (In memory session for now)
-- [ ] functionallity for tool calls 
+    - [x] by capabilities
+    - [ ] by source (Will be needed after adding cloud models)
+- [ ] assign metrics and limits to models
+- [ ] functionallity for sessions
+    - [x] conversations are stored in db
+    - [ ] can retrieve old conversation
+- [ ] Background tasks
+    - [ ] Integrate Celery
+    - [ ] Add to chat option to run tasks in background
+    - [ ] Add background tasks for embeddings
 - [ ] MCP
 - [ ] RAG
-- [ ] tracking limits for clouds
-- [ ] automate choosing llms
-- [x] allow parallel when it is possible (Done by Ollama settings)
-- [] Model list
-    - [x] Show it
-    - [ ] Return filters from API
-    - [ ] Model sorting and filtering on backend
-    - [ ] Model sorting and filtering on frontend
-    
-- [x] Chat View (On WebSocket)
-- [ ] api with metrics
-- [ ] allow conversation branching

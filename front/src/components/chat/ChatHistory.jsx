@@ -39,9 +39,7 @@ export default function ChatHistory({ setOnMessage }) {
         const parsed = JSON.parse(raw);
         parsed.forEach((msg) => {
           const message = new ChatMessage(msg);
-          console.log('msg',message);
           chatHistoryMemoryRef.current.addMessage(message);
-          console.log('chatHistoryMemory',chatHistoryMemoryRef.current.memory);
         });
       } catch (e) {
         console.error("Invalid JSON from WS:", raw);
@@ -66,9 +64,9 @@ export default function ChatHistory({ setOnMessage }) {
       ref={chatHistoryRef}
       className="flex flex-col h-full overflow-y-auto border border-gray-500 rounded-md p-4 whitespace-pre-wrap"
     >
-      {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
-        <div key={i}>{formatMessage(msg)}</div>
-      ))}
+    {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
+      <div key={i}>{formatMessage(msg)}</div>
+    ))}
     </div>
   );
 }

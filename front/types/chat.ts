@@ -1,5 +1,6 @@
 export class ChatMessage {
     id: number;
+    message_id: number;
     type: string;
     content: string;
     previous_id?: number;
@@ -7,6 +8,7 @@ export class ChatMessage {
 
     constructor(data: Partial<ChatMessage>) {
         this.id = data.id || 0;
+        this.message_id = data.message_id || 0;
         this.type = data.type || '';
         this.content = data.content || '';
         this.previous_id = data.previous_id;
@@ -14,39 +16,33 @@ export class ChatMessage {
     }
 }
 
-export interface ChatMemory {
-    [id: number]: ChatMessage;
-}
-
 
 export class ChatHistoryMemory {
-    memory: ChatMemory;
     current_id: number;
+    memory_list: ChatMessage[];
+    id_map: { [id: number]: number };
     constructor() {
-        this.memory = {};
         this.current_id = 0;
+        this.memory_list = [];
+        this.id_map = {};
     }
     addMessage(message: ChatMessage) {
-        console.log('message', message);
-        if (this.current_id !== 0 && this.current_id === message.id) {
-            if (message.type === 'generating') {
-                this.memory[message.id].content += message.content;
-            } else {
-                this.memory[message.id] = message;
-            }
+        if (this.id_map[message.message_id] === undefined) {
+            this.memory_list.push(message);
+            this.id_map[message.message_id] = this.memory_list.length - 1;
         } else {
-            const previous_id = this.current_id;
-            message.previous_id = this.current_id;
-            message.next_ids = [];
-            this.current_id = message.id;
-            this.memory[message.id] = message;
+            if (message.type === 'generating') {
+                this.memory_list[this.id_map[message.message_id]].content += message.content;
+            } else {
+                this.memory_list[this.id_map[message.message_id]] = message;
+            }
         }
         return this;
     }
     getMessage(id: number) {
-        return this.memory[id];
+        return this.memory_list[this.id_map[id]];
     }
     getMessages() {
-        return Object.values(this.memory);
+        return this.memory_list;
     }
 }

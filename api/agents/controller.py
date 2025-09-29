@@ -1,5 +1,10 @@
 from email import message
-from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
+from langchain_core.messages import (
+    HumanMessage,
+    BaseMessage,
+    SystemMessage,
+    ToolMessage,
+)
 import logging
 import asyncio
 from langchain_core.runnables import Runnable
@@ -103,6 +108,7 @@ class Controller:
         self.temperature = temperature
         await self.set_model(model_name, self.session)
 
+        # Start conversation and add system message
         self.conversation = Conversation(name=model_name)
         self.session.add(self.conversation)
         await self.session.commit()
@@ -114,6 +120,7 @@ class Controller:
         await self.response_queue.put(
             [system_message.message | {"message_id": system_message.id}]
         )
+        self.system_message.additional_kwargs["message_id"] = system_message.id
         self.add_message(self.system_message)
         self.sent_count += 1
 
@@ -121,26 +128,43 @@ class Controller:
         await self.set_llm(self.model)
         assert self.llm is not None
 
-    async def invoke(self, message: str):
+    async def invoke(self, message: str) -> AgentState:
+        """
+        Invoke the controller.
+        You should call this method to invoke the controller.
+        For continuous conversation, you should call this method multiple times.
+        You should call this method after calling the initialize method.
+
+        Args:
+            message: The human message to invoke the controller.
+        """
+        # Handle human message
         human_message = HumanMessage(content=message)
-        self.add_message(human_message)
         human_message_id = (await self.save_message_to_database(human_message)).id
-        await self.response_queue.put(
-            [dict(human_message) | {"message_id": human_message_id}]
-        )
+        human_message.additional_kwargs["message_id"] = human_message_id
+        self.add_message(human_message)
+        await self.response_queue.put([dict(human_message) | {"message_id": human_message_id}])
+
+        # Call agent
         agent = get_tool_first_agent(self.model_call)
         response = await agent.ainvoke(
             {"messages": [self.system_message] + self.messages}
         )
+
+        # Handle agent response
         for message in response["messages"][self.sent_count + 1 :]:
+            if "message_id" not in message.additional_kwargs:
+                db_message = await self.save_message_to_database(message)
+                message.additional_kwargs["message_id"] = db_message.id
             self.add_message(message)
-            await self.response_queue.put(
-                [dict(message) | {"message_id": message.id}]
-            )
         await self.response_queue.put(
-            [dict(msg) for msg in self.messages[self.sent_count + 1 :]]
+            [
+                dict(msg) | {"message_id": (msg.additional_kwargs["message_id"])}
+                for msg in self.messages[self.sent_count + 1 :]
+            ]
         )
         self.sent_count = len(self.messages)
+
         return response
 
     async def save_message_to_database(self, message: BaseMessage | dict) -> Message:
