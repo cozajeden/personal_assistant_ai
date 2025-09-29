@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { ChatHistoryMemory, ChatMessage } from "../../../types/chat";
+import { ChatHistoryMemory, ChatMessage } from "../../types/chat";
 
 export default function ChatHistory({ setOnMessage }) {
   const [version, setVersion] = useState(false);
