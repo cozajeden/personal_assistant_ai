@@ -37,8 +37,8 @@ class Controller:
         self.message: Optional[Message] = None
         self.system_message: SystemMessage = SystemMessage(
             content="""You are helpful assistant.
-        When tool didn't find the answer, you should try it again with different query.
-        You will always do 2 queries to the tool, per tool."""
+        If you use tool and it do not find the answer,
+        you should try it again with different query."""
         )
 
     async def set_model(self, model_name: str, session: AsyncSession) -> None:
@@ -133,6 +133,7 @@ class Controller:
         Args:
             model_name: The name of the model to use.
             temperature: The temperature of the model.
+            conversation_id: The id of the conversation to load.
         """
         self.clear_messages()
         self.temperature = temperature
@@ -176,11 +177,11 @@ class Controller:
         )
 
         # Handle agent response
-        for message in response["messages"][self.sent_count + 1 :]:
-            if "message_id" not in message.additional_kwargs:
-                db_message = await self.save_message_to_database(message)
-                message.additional_kwargs["message_id"] = db_message.id
-            self.add_message(message)
+        for event in response["messages"][self.sent_count + 1 :]:
+            if "message_id" not in event.additional_kwargs:
+                db_message = await self.save_message_to_database(event)
+                event.additional_kwargs["message_id"] = db_message.id
+            self.add_message(event)
         await self.response_queue.put(
             [
                 dict(msg) | {"message_id": (msg.additional_kwargs["message_id"])}

@@ -2,6 +2,7 @@ export class ChatMessage {
   id: number;
   message_id: number;
   type: string;
+  name: string;
   content: string;
   previous_id?: number;
   next_ids?: number[];
@@ -10,6 +11,7 @@ export class ChatMessage {
     this.id = data.id || 0;
     this.message_id = data.message_id || 0;
     this.type = data.type || "";
+    this.name = data.name || "name";
     this.content = data.content || "";
     this.previous_id = data.previous_id;
     this.next_ids = data.next_ids;

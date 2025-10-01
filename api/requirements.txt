@@ -26,3 +26,4 @@ openai-whisper
 websockets
 duckduckgo-search
 langchain-community
+ddgs
