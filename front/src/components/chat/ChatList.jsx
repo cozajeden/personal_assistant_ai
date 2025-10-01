@@ -2,7 +2,7 @@ import { ChatConversation } from "../../types/chat";
 import { useEffect, useState } from "react";
 import { fetchConversations } from "../../api/conversations";
 
-export default function ChatList({ setConversationId }) {
+export default function ChatList({ conversationId, setConversationId }) {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,7 +21,8 @@ export default function ChatList({ setConversationId }) {
         setLoading(false);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [conversationId]);
+
 
   return (
     <div className="flex flex-col min-h-0 w-1/5 border-gray-500 border-2 rounded-md p-4 gap-4">

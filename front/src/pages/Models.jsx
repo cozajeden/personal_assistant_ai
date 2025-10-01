@@ -28,38 +28,39 @@ export default function Models() {
   }
 
   return (
-    <div className="page">
-      <h1 className="text-2xl font-bold mb-4 text-white">Available Models</h1>
-      <ul className="space-y-4 grid grid-cols-5 gap-4 grid-flow-row">
+    <div className="flex flex-col gap-4 w-full items-center">
+      <h1 className="text-2xl font-bold mb-4 text-gray-300">Available Models</h1>
+      <table className="w-fit border-collapse text-gray-400 border border-gray-700 font-bold">
+        <thead>
+          <tr className="bg-black p-4 rounded-md text-amber-600  shadow-md border border-gray-700">
+            <th className="text-lg font-semibold border border-gray-700">Model Name</th>
+            <th className="text-lg font-semibold border border-gray-700">Context Window</th>
+            <th className="text-lg font-semibold border border-gray-700">Capabilities</th>
+            <th className="text-lg font-semibold border border-gray-700">Size</th>
+          </tr>
+        </thead>
+        <tbody>
         {models.database_models.map((model) => (
-          <li
+          <tr
             key={model.model_name}
             className="bg-black p-4 rounded-md shadow-md border border-gray-700"
           >
-            <h2 className="text-lg font-semibold text-amber-500">
+            <td className="text-lg px-4 font-semibold text-amber-600 border border-gray-700">
               {model.model_name}
-            </h2>
-            <p className="text-sm">
-              Context window:{" "}
-              <span className="text-rose-500 font-bold">
+            </td>
+            <td className="text-sm px-4 border border-gray-700">
                 {model.context_window}
-              </span>
-            </p>
-            <p className="text-sm">
-              Capabilities:{" "}
-              <span className="text-violet-500 font-bold">
+            </td>
+            <td className="text-sm px-4 border border-gray-700">
                 {model.capabilities.join(", ")}
-              </span>
-            </p>
-            <p className="text-sm text-gray-500">
-              Size:{" "}
-              <span className="text-lime-500 font-bold">
+            </td>
+            <td className="text-sm px-4 border border-gray-700">
                 {(model.size / 1e9).toFixed(2)} GB
-              </span>
-            </p>
-          </li>
+            </td>
+          </tr>
         ))}
-      </ul>
+        </tbody>
+      </table>
     </div>
   );
 }
