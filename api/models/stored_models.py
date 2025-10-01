@@ -57,7 +57,7 @@ class StoredModelsFilters(BaseModel):
     tools_asc: bool | None = PydanticField(None, description="Tools asc")
     thinking_asc: bool | None = PydanticField(None, description="Thinking asc")
     vision_asc: bool | None = PydanticField(None, description="Vision asc")
-    size_asc: bool | None = PydanticField(None, description="Size asc")
+    size_asc: bool | None = PydanticField(True, description="Size asc")
     completion_asc: bool | None = PydanticField(None, description="Completion asc")
     insert_asc: bool | None = PydanticField(None, description="Insert asc")
     embedding_asc: bool | None = PydanticField(None, description="Embedding asc")

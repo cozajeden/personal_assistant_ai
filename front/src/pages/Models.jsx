@@ -49,7 +49,7 @@ export default function Models() {
               {model.model_name}
             </td>
             <td className="text-sm px-4 border border-gray-700">
-                {model.context_window}
+                {(model.context_window / 1024).toFixed(2)} K
             </td>
             <td className="text-sm px-4 border border-gray-700">
                 {model.capabilities.join(", ")}
