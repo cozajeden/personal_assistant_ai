@@ -126,15 +126,20 @@ export default function Models() {
       }
       const column = filter.slice(0, -4);
       filteredModels = filteredModels.sort((a, b) => {
+        console.log(typeof a[column]);
         if (modelFilters[filter] === true) {
           if (typeof a[column] === "string") {
             return a[column].localeCompare(b[column]);
+          } else if (typeof a[column] === "object") {
+            return a.get_capabilities().localeCompare(b.get_capabilities());
           } else {
             return a[column] - b[column];
           }
         } else if (modelFilters[filter] === false) {
           if (typeof b[column] === "string") {
             return b[column].localeCompare(a[column]);
+          } else if (typeof b[column] === "object") {
+            return b.get_capabilities().localeCompare(a.get_capabilities());
           } else {
             return b[column] - a[column];
           }
