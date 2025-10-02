@@ -21,17 +21,13 @@ function HeaderCell({
         <div className="flex flex-row gap-2">
           <div
             className={`cursor-pointer ${state === true ? "text-white" : ""}`}
-            onClick={() =>
-              handleOrder(columnId, "asc", filters, setFilters)
-            }
+            onClick={() => handleOrder(columnId, "asc", filters, setFilters)}
           >
             ⮝
           </div>
           <div
             className={`cursor-pointer ${state === false ? "text-white" : ""}`}
-            onClick={() =>
-              handleOrder(columnId, "desc", filters, setFilters)
-            }
+            onClick={() => handleOrder(columnId, "desc", filters, setFilters)}
           >
             ⮟
           </div>
@@ -62,10 +58,8 @@ const handleOrder = (columnId, direction, filters, setFilters) => {
   const targetValue = direction === "asc" ? true : false;
 
   if (currentValue === targetValue) {
-    // If checked was clicked again, uncheck it
     setFilters({ ...filters, [columnId]: undefined });
   } else {
-    // If unchecked was clicked, uncheck all other ascending filters and check the current one
     setFilters({
       ...filters,
       ...Object.fromEntries(
@@ -104,7 +98,6 @@ export default function Models() {
     if (loading) {
       return;
     }
-    // Apply filters
     let filteredModels = allModels.filter((model) => {
       let passesFilters = model.model_name
         .toLowerCase()
@@ -119,14 +112,12 @@ export default function Models() {
       return passesFilters;
     });
 
-    // Apply sorting
     ASC_FILTERS.forEach((filter) => {
       if (modelFilters[filter] === undefined) {
         return;
       }
       const column = filter.slice(0, -4);
       filteredModels = filteredModels.sort((a, b) => {
-        console.log(typeof a[column]);
         if (modelFilters[filter] === true) {
           if (typeof a[column] === "string") {
             return a[column].localeCompare(b[column]);
@@ -157,7 +148,6 @@ export default function Models() {
   }
 
   const handleFilter = (e) => {
-    console.log(`${e.target.id}`, e.target.checked);
     setModelFilters({ ...modelFilters, [e.target.id]: e.target.checked });
   };
 
@@ -177,7 +167,6 @@ export default function Models() {
             setModelFilters({ ...modelFilters, model_name: e.target.value })
           }
         />
-        {/* Map over checkboxes */}
         {checkboxFilters.map(({ id, label }) => (
           <div key={id} className="flex items-center gap-2">
             <input
@@ -193,7 +182,6 @@ export default function Models() {
       <table className="w-fit border-collapse text-gray-400 border border-gray-700 font-bold">
         <thead>
           <tr className="bg-black p-4 rounded-md text-amber-600  shadow-md border border-gray-700">
-            {/* Map over column headers */}
             {columns.map(({ header, asc }) => (
               <HeaderCell
                 key={header}
@@ -208,7 +196,6 @@ export default function Models() {
           </tr>
         </thead>
         <tbody>
-          {/* Map over models */}
           {models.map((model) => (
             <tr
               key={model.model_name}
