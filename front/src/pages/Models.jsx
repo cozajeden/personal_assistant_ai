@@ -6,10 +6,29 @@ const ASC_FILTERS = Object.keys(new ModelFilters()).filter((key) =>
   key.endsWith("_asc")
 );
 
+const handleOrder = (columnId, direction, filters, setFilters) => {
+  const currentValue = filters[columnId];
+  const targetValue = direction === "asc" ? true : false;
+
+  if (currentValue === targetValue) {
+    setFilters({ ...filters, [columnId]: undefined });
+  } else {
+    setFilters({
+      ...filters,
+      ...Object.fromEntries(
+        ASC_FILTERS.filter((filter) => filter !== columnId).map((filter) => [
+          filter,
+          undefined,
+        ])
+      ),
+      [columnId]: targetValue,
+    });
+  }
+};
+
 function HeaderCell({
   columnHeader,
   columnId,
-  handleOrder,
   filters,
   setFilters,
   state,
@@ -52,26 +71,6 @@ const checkboxFilters = [
   { id: "embedding", label: "Embedding" },
   { id: "tools", label: "Tools" },
 ];
-
-const handleOrder = (columnId, direction, filters, setFilters) => {
-  const currentValue = filters[columnId];
-  const targetValue = direction === "asc" ? true : false;
-
-  if (currentValue === targetValue) {
-    setFilters({ ...filters, [columnId]: undefined });
-  } else {
-    setFilters({
-      ...filters,
-      ...Object.fromEntries(
-        ASC_FILTERS.filter((filter) => filter !== columnId).map((filter) => [
-          filter,
-          undefined,
-        ])
-      ),
-      [columnId]: targetValue,
-    });
-  }
-};
 
 export default function Models() {
   const [modelFilters, setModelFilters] = useState(new ModelFilters());
@@ -187,7 +186,6 @@ export default function Models() {
                 key={header}
                 columnHeader={header}
                 columnId={asc}
-                handleOrder={handleOrder}
                 filters={modelFilters}
                 setFilters={setModelFilters}
                 state={modelFilters[asc]}
