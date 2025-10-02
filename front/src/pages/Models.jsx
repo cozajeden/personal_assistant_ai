@@ -106,10 +106,9 @@ export default function Models() {
     }
     // Apply filters
     let filteredModels = allModels.filter((model) => {
-      let passesFilters =
-        model.model_name
-          .toLowerCase()
-          .includes(modelFilters.model_name.toLowerCase());
+      let passesFilters = model.model_name
+        .toLowerCase()
+        .includes(modelFilters.model_name.toLowerCase());
       checkboxFilters.forEach((filter) => {
         passesFilters =
           passesFilters &&
@@ -164,7 +163,7 @@ export default function Models() {
       </h1>
       <div className="flex flex-row flex-wrap gap-4 w-full items-center justify-center">
         <input
-        className="border-gray-700 border-2 rounded-md p-2"
+          className="border-gray-700 border-2 rounded-md p-2"
           type="text"
           placeholder="model name partial search"
           value={modelFilters.model_name}
