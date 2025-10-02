@@ -1,9 +1,9 @@
 ### TODO
-- [ ] Model list
+- [x] Model list
     - [x] Show it
     - [x] Return filters from API
     - [x] Model sorting and filtering on backend
-    - [ ] Model sorting and filtering on frontend
+    - [x] Model sorting and filtering on frontend
 - [ ] Tools
     - [x] functionallity for tool calls
     - [x] Show tools response in conversation
