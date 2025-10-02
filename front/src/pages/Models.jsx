@@ -10,8 +10,8 @@ function HeaderCell({
   columnHeader,
   columnId,
   handleOrder,
-  modelFilters,
-  setModelFilters,
+  filters,
+  setFilters,
   state,
 }) {
   return (
@@ -22,7 +22,7 @@ function HeaderCell({
           <div
             className={`cursor-pointer ${state === true ? "text-white" : ""}`}
             onClick={() =>
-              handleOrder(columnId, "asc", modelFilters, setModelFilters)
+              handleOrder(columnId, "asc", filters, setFilters)
             }
           >
             ⮝
@@ -30,7 +30,7 @@ function HeaderCell({
           <div
             className={`cursor-pointer ${state === false ? "text-white" : ""}`}
             onClick={() =>
-              handleOrder(columnId, "desc", modelFilters, setModelFilters)
+              handleOrder(columnId, "desc", filters, setFilters)
             }
           >
             ⮟
@@ -57,17 +57,17 @@ const checkboxFilters = [
   { id: "tools", label: "Tools" },
 ];
 
-const handleOrder = (columnId, direction, modelFilters, setModelFilters) => {
-  const currentValue = modelFilters[columnId];
+const handleOrder = (columnId, direction, filters, setFilters) => {
+  const currentValue = filters[columnId];
   const targetValue = direction === "asc" ? true : false;
 
   if (currentValue === targetValue) {
     // If checked was clicked again, uncheck it
-    setModelFilters({ ...modelFilters, [columnId]: undefined });
+    setFilters({ ...filters, [columnId]: undefined });
   } else {
     // If unchecked was clicked, uncheck all other ascending filters and check the current one
-    setModelFilters({
-      ...modelFilters,
+    setFilters({
+      ...filters,
       ...Object.fromEntries(
         ASC_FILTERS.filter((filter) => filter !== columnId).map((filter) => [
           filter,
@@ -200,8 +200,8 @@ export default function Models() {
                 columnHeader={header}
                 columnId={asc}
                 handleOrder={handleOrder}
-                modelFilters={modelFilters}
-                setModelFilters={setModelFilters}
+                filters={modelFilters}
+                setFilters={setModelFilters}
                 state={modelFilters[asc]}
               />
             ))}
