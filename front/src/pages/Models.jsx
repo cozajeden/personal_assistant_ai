@@ -205,13 +205,13 @@ export default function Models() {
                 {model.model_name}
               </td>
               <td className="text-sm px-4 border border-gray-700">
-                {model.get_context_window_kb()} K
+                {model.get_context_window_kb()}
               </td>
               <td className="text-sm px-4 border border-gray-700">
                 {model.get_capabilities()}
               </td>
               <td className="text-sm px-4 border border-gray-700">
-                {model.get_size_gb()} GB
+                {model.get_size_gb()}
               </td>
             </tr>
           ))}

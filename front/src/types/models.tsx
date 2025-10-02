@@ -62,10 +62,10 @@ export class Model {
     this.capabilities = data.capabilities;
   }
   get_context_window_kb() {
-    return (this.context_window / 1024).toFixed(2);
+    return (this.context_window / 1024).toFixed(2) + " K";
   }
   get_size_gb() {
-    return (this.size / 1e9).toFixed(2);
+    return (this.size / 1e9).toFixed(2) + " GB";
   }
   get_capabilities() {
     return this.capabilities?.join(", ") || "";
