@@ -1,14 +1,23 @@
 import ChatHistory from "./ChatHistory";
 import InputBox from "./InputBox";
-import { useWebSocket } from "../../ws/chat";
-import { API_BASE } from "../../config/api";
+import SelectModel from "./SelectModel";
 
 const components = {
   ChatHistory,
   InputBox,
 };
 
-export default function ChatBox({ conversationId, setConversationId }) {
+export default function ChatBox({
+  conversationId,
+  setConversationId,
+  sendMessage,
+  setOnMessage,
+  choosenModel,
+  setChoosenModel,
+  chatVersion,
+  setChatVersion,
+  chatHistoryMemoryRef,
+}) {
   if (conversationId === null) {
     return (
       <div className="flex flex-col min-h-0 min-w-0 w-full border-gray-500 border-2 items-center justify-center">
@@ -16,23 +25,36 @@ export default function ChatBox({ conversationId, setConversationId }) {
         <div>or</div>
         <button
           className="bg-blue-500 text-white rounded-md p-2"
-          onClick={() => setConversationId(0)}
+          onClick={() => {
+            setConversationId(0);
+            sendMessage({ command: "start", conversation_id: 0 });
+          }}
         >
           create a new conversation
         </button>
+        <div className="h-fit w-ful">
+          <SelectModel
+            setChoosenModel={setChoosenModel}
+            choosenModel={choosenModel}
+          />
+        </div>
       </div>
     );
   }
-  const { sendMessage, setOnMessage } = useWebSocket(
-    `${API_BASE}/ws/chat/new?conversation_id=${conversationId}`
-  );
   return (
     <div className="flex flex-col min-h-0 min-w-0 w-4/5 border-gray-500 border-2 rounded-md grow">
       <ChatHistory
         setOnMessage={setOnMessage}
         conversationId={conversationId}
+        chatVersion={chatVersion}
+        setChatVersion={setChatVersion}
+        chatHistoryMemoryRef={chatHistoryMemoryRef}
       />
-      <InputBox sendMessage={sendMessage} />
+      <InputBox
+        sendMessage={sendMessage}
+        setChoosenModel={setChoosenModel}
+        choosenModel={choosenModel}
+      />
     </div>
   );
 }

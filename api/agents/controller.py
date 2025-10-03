@@ -16,7 +16,7 @@ import settings
 from .variables import AgentState
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 class Controller:
@@ -94,7 +94,7 @@ class Controller:
         return {"messages": [data]}
 
     async def start_new_conversation(self, model_name: str):
-        self.conversation = Conversation(name=model_name)
+        self.conversation = Conversation(name="New conversation", model_name=model_name)
         self.session.add(self.conversation)
         await self.session.commit()
         system_message = Message(
@@ -102,23 +102,19 @@ class Controller:
         )
         self.session.add(system_message)
         await self.session.commit()
-        await self.response_queue.put(
-            [system_message.message | {"message_id": system_message.id}]
-        )
         self.system_message.additional_kwargs["message_id"] = system_message.id
-        self.add_message(self.system_message)
+        self.add_message(system_message.message | {"message_id": system_message.id})
 
-    async def load_conversation(self, conversation_id: int):
+    async def load_db_conversation(self, conversation_id: int):
         self.conversation = await self.session.get(Conversation, conversation_id)
         stored_messages = await self.session.exec(
             select(Message).where(Message.conversation_id == conversation_id)
         )
         for message in stored_messages:
             self.add_message(message=message.message | {"message_id": message.id})
-        await self.response_queue.put(self.messages)
         assert self.conversation is not None
 
-    async def initialize(
+    async def start_conversation(
         self,
         model_name: str = "qwen3:4b",
         temperature: float = 0.7,
@@ -143,7 +139,7 @@ class Controller:
         if conversation_id == 0:
             await self.start_new_conversation(model_name)
         else:
-            await self.load_conversation(conversation_id)
+            await self.load_db_conversation(conversation_id)
 
         assert self.conversation is not None
         self.sent_count = len(self.messages)
@@ -151,7 +147,7 @@ class Controller:
         await self.set_llm(self.model)
         assert self.llm is not None
 
-    async def invoke(self, message: str) -> AgentState:
+    async def invoke(self, message: dict) -> None:
         """
         Invoke the controller.
         You should call this method to invoke the controller.
@@ -161,8 +157,41 @@ class Controller:
         Args:
             message: The human message to invoke the controller.
         """
+        logging.info(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: {message}")
+        if message["command"] == "start":
+            await self.start_conversation(
+                model_name=message["model_name"],
+                conversation_id=int(message["conversation_id"]),
+            )
+            await self.response_queue.put(self.messages)
+            self.sent_count = len(self.messages)
+            return
+
+        if (
+            self.conversation is not None
+            and self.conversation.model_name != message["model_name"]
+        ):
+            self.conversation.model_name = message["model_name"]
+            await self.update_conversation_in_database(self.conversation)
+            await self.set_model(message["model_name"], self.session)
+            assert self.model is not None
+            await self.set_llm(self.model)
+            await self.response_queue.put(
+                [{"response": "changed", "model_name": message["model_name"]}]
+            )
+
         # Handle human message
-        human_message = HumanMessage(content=message)
+        if message["command"] != "chat":
+            await self.response_queue.put(
+                [
+                    {
+                        "response": "error",
+                        "error": f"Not a chat message: {message['command']}",
+                    }
+                ]
+            )
+            return
+        human_message = HumanMessage(content=message["input"])
         human_message_id = (await self.save_message_to_database(human_message)).id
         human_message.additional_kwargs["message_id"] = human_message_id
         self.add_message(human_message)
@@ -190,8 +219,6 @@ class Controller:
         )
         self.sent_count = len(self.messages)
 
-        return response
-
     async def save_message_to_database(self, message: BaseMessage | dict) -> Message:
         assert self.conversation is not None
         db_message = Message(
@@ -205,6 +232,13 @@ class Controller:
         self.session.add(message)
         await self.session.commit()
         return message
+
+    async def update_conversation_in_database(
+        self, conversation: Conversation
+    ) -> Conversation:
+        self.session.add(conversation)
+        await self.session.commit()
+        return conversation
 
     def add_message(self, message: BaseMessage):
         self.messages.append(message)

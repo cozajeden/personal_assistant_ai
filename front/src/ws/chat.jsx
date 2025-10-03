@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Model } from "../components/models/models";
+import { ChatHistoryMemory } from "../types/chat";
 
 export function useWebSocket(url) {
   const ws = useRef(null);
   const messageHandler = useRef(null);
+  const [choosenModel, setChoosenModel] = useState(
+    new Model({
+      model_name: undefined,
+      context_window: 0,
+      size: 0,
+      capabilities: [],
+    })
+  );
+  const [conversationId, setConversationId] = useState(null);
+  const chatHistoryMemoryRef = useRef(new ChatHistoryMemory());
+  const [chatVersion, setChatVersion] = useState(0);
 
   // Register callback from outside
   const setOnMessage = useCallback((callback) => {
@@ -38,11 +51,31 @@ export function useWebSocket(url) {
     };
   }, [url]);
 
-  const sendMessage = useCallback((message) => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(message);
-    }
-  }, []);
+  const sendMessage = useCallback(
+    (message) => {
+      console.debug("Sending message:", message, choosenModel, conversationId);
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(
+          JSON.stringify({
+            model_name: choosenModel.model_name,
+            conversation_id: conversationId,
+            ...message,
+          })
+        );
+      }
+    },
+    [choosenModel, conversationId]
+  );
 
-  return { sendMessage, setOnMessage };
+  return {
+    sendMessage,
+    setOnMessage,
+    choosenModel,
+    setChoosenModel,
+    conversationId,
+    setConversationId,
+    chatVersion,
+    setChatVersion,
+    chatHistoryMemoryRef,
+  };
 }

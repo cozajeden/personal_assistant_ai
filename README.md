@@ -12,7 +12,8 @@
     - [ ] User should control which tools are attached
 - [ ] Chat View
     - [x] Minimal working conversation
-    - [ ] Choosing model
+    - [x] Choosing model on frontend
+    - [ ] Choosing model on backend
     - [x] Choosing past conversations
     - [ ] allow conversation branching
     - [ ] allow system messages management

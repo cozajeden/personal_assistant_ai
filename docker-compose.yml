@@ -3,7 +3,7 @@ services:
     image: postgres:18.0
     container_name: postgres
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/18/docker
     ports:
       - "5432:5432"
     env_file:
@@ -55,6 +55,18 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
+  
+  postgres-init:
+    build: ./api
+    container_name: postgres-init
+    depends_on:
+      - postgres
+    command: ["alembic", "upgrade", "head"]
+    env_file:
+      - .env
+    volumes:
+      - ./api:/app
+    restart: on-failure
 
   react:
     image: node:24.8.0

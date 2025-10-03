@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import WebSocket, APIRouter, WebSocketDisconnect, Query
+from fastapi import WebSocket, APIRouter, WebSocketDisconnect
 import logging
 import asyncio
 from agents.controller import Controller
@@ -23,17 +23,15 @@ async def send_message_from_queue(websocket: WebSocket, queue: asyncio.Queue):
 async def chat(
     websocket: WebSocket,
     session: SessionDependency,
-    conversation_id: Annotated[int, Query(min_value=0)] = 0,
 ):
     await websocket.accept()
     queue: asyncio.Queue = asyncio.Queue()
     task = asyncio.create_task(send_message_from_queue(websocket, queue))
     controller = Controller(queue, session)
-    await controller.initialize(conversation_id=conversation_id)
     try:
         while True:
             data = await websocket.receive_json()
-            response = await controller.invoke(data["content"])
+            await controller.invoke(data)
     except WebSocketDisconnect:
         logging.info("WebSocket disconnected by client")
     except Exception as e:

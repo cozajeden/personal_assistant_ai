@@ -2,7 +2,14 @@ import { ChatConversation } from "../../types/chat";
 import { useEffect, useState } from "react";
 import { fetchConversations } from "../../api/conversations";
 
-export default function ChatList({ conversationId, setConversationId }) {
+export default function ChatList({
+  conversationId,
+  setConversationId,
+  sendMessage,
+  chatVersion,
+  setChatVersion,
+  chatHistoryMemoryRef,
+}) {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,14 +30,21 @@ export default function ChatList({ conversationId, setConversationId }) {
       .finally(() => setLoading(false));
   }, [conversationId]);
 
-
   return (
     <div className="flex flex-col min-h-0 w-1/5 border-gray-500 border-2 rounded-md p-4 gap-4">
       <h5 className="text-2xl font-bold">Chat List</h5>
       <div
         className="hover:bg-gray-700 border-gray-700 border-2 rounded-md cursor-pointer p-0.5 text-center"
         title="New Conversation"
-        onClick={() => setConversationId(0)}
+        onClick={() => {
+          setConversationId(0);
+          sendMessage({
+            command: "start",
+            conversation_id: 0,
+          });
+          chatHistoryMemoryRef.current.clear();
+          setChatVersion((prev) => prev + 1);
+        }}
       >
         New Conversation
       </div>
@@ -40,7 +54,13 @@ export default function ChatList({ conversationId, setConversationId }) {
             className="hover:bg-gray-700 border-gray-700 border-2 rounded-md cursor-pointer p-0.5 text-center"
             title={conversation.id.toString()}
             key={conversation.id}
-            onClick={() => setConversationId(conversation.id)}
+            onClick={() => {
+              setConversationId(conversation.id);
+              sendMessage({
+                command: "start",
+                conversation_id: conversation.id,
+              });
+            }}
           >
             {conversation.name}
           </div>

@@ -1,9 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { ChatHistoryMemory, ChatMessage } from "../../types/chat";
 
-export default function ChatHistory({ setOnMessage, conversationId }) {
-  const [version, setVersion] = useState(false);
-  const chatHistoryMemoryRef = useRef(new ChatHistoryMemory());
+export default function ChatHistory({
+  setOnMessage,
+  conversationId,
+  chatVersion,
+  setChatVersion,
+  chatHistoryMemoryRef,
+}) {
   const chatHistoryRef = useRef(null);
 
   const formatMessage = (message) => {
@@ -59,7 +63,7 @@ export default function ChatHistory({ setOnMessage, conversationId }) {
       } catch (e) {
         console.error("Invalid JSON from WS:", raw);
       }
-      setVersion((prev) => !prev);
+      setChatVersion((prev) => prev + 1);
     });
   }, [setOnMessage]);
 
@@ -71,7 +75,7 @@ export default function ChatHistory({ setOnMessage, conversationId }) {
       });
       chatHistoryRef.current.scrollBy(0, chatHistoryRef.current.clientHeight);
     }
-  }, [version]);
+  }, [chatVersion]);
 
   return (
     <div

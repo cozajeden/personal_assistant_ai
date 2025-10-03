@@ -15,6 +15,7 @@ class Conversation(SQLModel, table=True):
     __tablename__ = "conversations"
     id: int = SQLModelField(default=None, primary_key=True)
     name: str = SQLModelField(sa_column=Column(String))
+    model_name: str = SQLModelField(sa_column=Column(String))
     created_at: Column[DateTime] = SQLModelField(
         sa_column=Column(DateTime), default_factory=datetime.now
     )

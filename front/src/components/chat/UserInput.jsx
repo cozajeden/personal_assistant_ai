@@ -4,7 +4,7 @@ export default function UserInput({ sendMessage }) {
   const [input, setInput] = useState("");
   const handleSendMessage = () => {
     if (input.trim()) {
-      sendMessage(JSON.stringify({ type: "chat", content: input }));
+      sendMessage({ command: "chat", input: input });
       setInput("");
     }
   };
