@@ -29,9 +29,9 @@ function arrayContainsAll(mainArray, subArray) {
 }
 
 export default function ModelTableList({
-  setChoosenModel,
-  choosenModel,
   filteredChoosenModelCapabilities,
+  actions,
+  state,
 }) {
   const [modelFilters, setModelFilters] = useState(new ModelFilters());
   const [allModels, setAllModels] = useState([]);
@@ -52,12 +52,15 @@ export default function ModelTableList({
         }
         setAllModels(data.database_models.map((model) => new Model(model)));
         setModels(data.database_models.map((model) => new Model(model)));
-        if (setChoosenModel && data.database_models.length > 0) {
+        if (
+          actions?.setSelectedModel !== undefined &&
+          data.database_models.length > 0
+        ) {
           const firstValidModel = data.database_models.find((model) => {
             const _model = new Model(model);
             return _model.get_size_gb() !== "0.00 GB" && model.completion;
           });
-          setChoosenModel(
+          actions.setSelectedModel(
             firstValidModel
               ? new Model(firstValidModel)
               : new Model({
@@ -124,7 +127,7 @@ export default function ModelTableList({
     });
 
     setModels(filteredModels);
-  }, [modelFilters, choosenModel]);
+  }, [modelFilters, state.selectedModel]);
 
   if (error) {
     return <p className="page text-red-500">Error: {error}</p>;
@@ -181,12 +184,16 @@ export default function ModelTableList({
               key={model.model_name}
               className={`p-4 rounded-md shadow-md border border-gray-700
                 ${
-                  model.model_name === choosenModel?.model_name
+                  model.model_name === state.selectedModel?.model_name
                     ? "bg-gray-900"
                     : "bg-black"
                 }
-                ${setChoosenModel ? "cursor-pointer" : ""}`}
-              onClick={() => setChoosenModel(model)}
+                ${
+                  actions?.setSelectedModel !== undefined
+                    ? "cursor-pointer"
+                    : ""
+                }`}
+              onClick={() => actions.setSelectedModel(model)}
             >
               <td className="text-lg px-4 font-semibold text-amber-600 border border-gray-700">
                 {model.model_name}

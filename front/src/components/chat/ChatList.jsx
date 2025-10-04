@@ -1,34 +1,23 @@
 import { ChatConversation } from "../../types/chat";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { fetchConversations } from "../../api/conversations";
 
-export default function ChatList({
-  conversationId,
-  setConversationId,
-  sendMessage,
-  chatVersion,
-  setChatVersion,
-  chatHistoryMemoryRef,
-}) {
-  const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+export default function ChatList({ state, actions }) {
   useEffect(() => {
+    actions.setLoading(true);
     fetchConversations()
       .then((data) => {
         const conversations = data.conversations.map(
           (conversation) => new ChatConversation(conversation)
         );
-        setConversations(conversations);
-        setLoading(false);
+        actions.setConversations(conversations);
+        actions.setLoading(false);
       })
       .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      })
-      .finally(() => setLoading(false));
-  }, [conversationId]);
+        actions.setError(error.message);
+        actions.setLoading(false);
+      });
+  }, [state.currentConversationId]);
 
   return (
     <div className="flex flex-col min-h-0 w-1/5 border-gray-500 border-2 rounded-md p-4 gap-4">
@@ -37,26 +26,20 @@ export default function ChatList({
         className="hover:bg-gray-700 border-gray-700 border-2 rounded-md cursor-pointer p-0.5 text-center"
         title="New Conversation"
         onClick={() => {
-          setConversationId(0);
-          sendMessage({
-            command: "start",
-            conversation_id: 0,
-          });
-          chatHistoryMemoryRef.current.clear();
-          setChatVersion((prev) => prev + 1);
+          actions.startNewConversation();
         }}
       >
         New Conversation
       </div>
       <div className="flex flex-col gap-1 overflow-y-auto">
-        {conversations.map((conversation) => (
+        {state.conversations.map((conversation) => (
           <div
             className="hover:bg-gray-700 border-gray-700 border-2 rounded-md cursor-pointer p-0.5 text-center"
             title={conversation.id.toString()}
             key={conversation.id}
             onClick={() => {
-              setConversationId(conversation.id);
-              sendMessage({
+              actions.setCurrentConversationId(conversation.id);
+              actions.sendMessage({
                 command: "start",
                 conversation_id: conversation.id,
               });

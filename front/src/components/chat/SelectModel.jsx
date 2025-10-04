@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Model } from "../models/models";
 import ModelTableList from "../models/TableListWithFilters";
 
-export default function SelectModel({ setChoosenModel, choosenModel }) {
+export default function SelectModel({ actions, state }) {
   const [showModelList, setShowModelList] = useState(false);
   const filteredChoosenModelCapabilities = ["completion"];
 
@@ -17,13 +17,13 @@ export default function SelectModel({ setChoosenModel, choosenModel }) {
       <div className="text-white text-center text-sm">
         Now using:
         <br />
-        name: <b>{choosenModel.model_name}</b>
+        name: <b>{state.selectedModel.model_name}</b>
         <br />
-        context window: <b>{choosenModel.get_context_window_kb()}</b>
+        context window: <b>{state.selectedModel.get_context_window_kb()}</b>
         <br />
-        size: <b>{choosenModel.get_size_gb()}</b>
+        size: <b>{state.selectedModel.get_size_gb()}</b>
         <br />
-        capabilities: <b>{choosenModel.get_capabilities()}</b>
+        capabilities: <b>{state.selectedModel.get_capabilities()}</b>
       </div>
       <div
         className={`fixed flex flex-col justify-center items-center h-screen overflow-hidden w-screen left-0 top-0 z-100 gap-2 bg-black/80 ${
@@ -36,8 +36,8 @@ export default function SelectModel({ setChoosenModel, choosenModel }) {
             Click to choose model
           </div>
           <ModelTableList
-            setChoosenModel={setChoosenModel}
-            choosenModel={choosenModel}
+            actions={actions}
+            state={state}
             filteredChoosenModelCapabilities={filteredChoosenModelCapabilities}
           />
         </div>

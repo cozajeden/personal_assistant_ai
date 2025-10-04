@@ -1,13 +1,6 @@
-import { useEffect, useState, useRef } from "react";
-import { ChatHistoryMemory, ChatMessage } from "../../types/chat";
+import { useEffect, useRef } from "react";
 
-export default function ChatHistory({
-  setOnMessage,
-  conversationId,
-  chatVersion,
-  setChatVersion,
-  chatHistoryMemoryRef,
-}) {
+export default function ChatHistory({ state, actions }) {
   const chatHistoryRef = useRef(null);
 
   const formatMessage = (message) => {
@@ -49,25 +42,6 @@ export default function ChatHistory({
   };
 
   useEffect(() => {
-    chatHistoryMemoryRef.current.clear();
-  }, [conversationId]);
-
-  useEffect(() => {
-    setOnMessage((raw) => {
-      try {
-        const parsed = JSON.parse(raw);
-        parsed.forEach((msg) => {
-          const message = new ChatMessage(msg);
-          chatHistoryMemoryRef.current.addMessage(message);
-        });
-      } catch (e) {
-        console.error("Invalid JSON from WS:", raw);
-      }
-      setChatVersion((prev) => prev + 1);
-    });
-  }, [setOnMessage]);
-
-  useEffect(() => {
     if (chatHistoryRef.current) {
       chatHistoryRef.current.lastElementChild?.scrollIntoView({
         behavior: "smooth",
@@ -75,14 +49,14 @@ export default function ChatHistory({
       });
       chatHistoryRef.current.scrollBy(0, chatHistoryRef.current.clientHeight);
     }
-  }, [chatVersion]);
+  }, [state.chatVersion]);
 
   return (
     <div
       ref={chatHistoryRef}
       className="flex flex-col h-full overflow-y-auto border border-gray-500 rounded-md p-4 whitespace-pre-wrap gap-5"
     >
-      {chatHistoryMemoryRef.current.getMessages().map((msg, i) => (
+      {state.chatHistory.getMessages().map((msg, i) => (
         <div key={i}>{formatMessage(msg)}</div>
       ))}
     </div>

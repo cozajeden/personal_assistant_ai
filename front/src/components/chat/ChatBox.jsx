@@ -7,18 +7,8 @@ const components = {
   InputBox,
 };
 
-export default function ChatBox({
-  conversationId,
-  setConversationId,
-  sendMessage,
-  setOnMessage,
-  choosenModel,
-  setChoosenModel,
-  chatVersion,
-  setChatVersion,
-  chatHistoryMemoryRef,
-}) {
-  if (conversationId === null) {
+export default function ChatBox({ state, actions }) {
+  if (state.currentConversationId === null) {
     return (
       <div className="flex flex-col min-h-0 min-w-0 w-full border-gray-500 border-2 items-center justify-center">
         <div>Select a conversation from the list</div>
@@ -26,35 +16,21 @@ export default function ChatBox({
         <button
           className="bg-blue-500 text-white rounded-md p-2"
           onClick={() => {
-            setConversationId(0);
-            sendMessage({ command: "start", conversation_id: 0 });
+            actions.startNewConversation();
           }}
         >
           create a new conversation
         </button>
         <div className="h-fit w-ful">
-          <SelectModel
-            setChoosenModel={setChoosenModel}
-            choosenModel={choosenModel}
-          />
+          <SelectModel actions={actions} state={state} />
         </div>
       </div>
     );
   }
   return (
     <div className="flex flex-col min-h-0 min-w-0 w-4/5 border-gray-500 border-2 rounded-md grow">
-      <ChatHistory
-        setOnMessage={setOnMessage}
-        conversationId={conversationId}
-        chatVersion={chatVersion}
-        setChatVersion={setChatVersion}
-        chatHistoryMemoryRef={chatHistoryMemoryRef}
-      />
-      <InputBox
-        sendMessage={sendMessage}
-        setChoosenModel={setChoosenModel}
-        choosenModel={choosenModel}
-      />
+      <ChatHistory state={state} actions={actions} />
+      <InputBox state={state} actions={actions} />
     </div>
   );
 }

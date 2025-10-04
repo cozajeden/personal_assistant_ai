@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-export default function UserInput({ sendMessage }) {
+export default function UserInput({ actions, state }) {
   const [input, setInput] = useState("");
   const handleSendMessage = () => {
     if (input.trim()) {
-      sendMessage({ command: "chat", input: input });
+      actions.sendMessage({ command: "chat", input: input });
       setInput("");
     }
   };
