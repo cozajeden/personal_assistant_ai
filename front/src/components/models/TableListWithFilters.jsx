@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchModels } from "../../api/models";
-import { Model, ModelFilters } from "./models";
+import { Model, ModelFilters } from "../../types/models";
 import HeaderCell from "../tables/TableHeaderWithSorting";
 
 const ASC_FILTERS = Object.keys(new ModelFilters()).filter((key) =>

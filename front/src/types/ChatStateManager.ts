@@ -1,4 +1,4 @@
-import { Model } from "../components/models/models";
+import { Model } from "./models";
 import { ChatHistoryMemory, ChatMessage, ChatConversation } from "./chat";
 
 export type ChatStateListener = (state: ChatState) => void;

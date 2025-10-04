@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Model } from "../models/models";
 import ModelTableList from "../models/TableListWithFilters";
 
 export default function SelectModel({ actions, state }) {

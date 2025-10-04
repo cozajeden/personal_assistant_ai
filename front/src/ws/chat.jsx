@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Model } from "../components/models/models";
+import { Model } from "../types/models";
 import { ChatHistoryMemory } from "../types/chat";
 
 export function useWebSocket(url) {
